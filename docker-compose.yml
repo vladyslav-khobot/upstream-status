@@ -1,0 +1,22 @@
+# Runs the production builds of both apps: http://localhost:8080
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      PORT: 3001
+      CACHE_TTL_MS: 60000
+      UPSTREAM_TIMEOUT_MS: 5000
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - '8080:80'
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
