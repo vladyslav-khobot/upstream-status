@@ -1,0 +1,14 @@
+{
+  // Node runs these .ts files directly (built-in type stripping), so tsc is only a type checker here.
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "allowImportingTsExtensions": true,
+    // Type stripping can only remove syntax, not transform it: no enums, namespaces or parameter properties.
+    "erasableSyntaxOnly": true
+  },
+  "include": ["src", "test"]
+}
