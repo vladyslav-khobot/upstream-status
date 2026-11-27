@@ -3,8 +3,11 @@ import { queryOptions } from '@tanstack/react-query';
 import { getJson, isApiError } from './client';
 import { incidentHistorySchema, serviceDetailSchema, serviceListSchema } from './schemas';
 
-/** The API caches status pages for 60s, so polling faster would only return the same data. */
-export const POLL_INTERVAL_MS = 60_000;
+/** Live refresh: matches the API cache TTL, so every poll can bring new data. */
+export const POLL_INTERVAL_MS = 10_000;
+
+/** How many incidents the history shows at first and adds on "Show more". */
+export const HISTORY_PAGE_SIZE = 25;
 
 /**
  * Query keys live in one place and are built hierarchically, so
@@ -14,7 +17,8 @@ export const serviceKeys = {
   all: ['services'] as const,
   list: () => [...serviceKeys.all, 'list'] as const,
   detail: (id: string) => [...serviceKeys.all, 'detail', id] as const,
-  incidents: (id: string) => [...serviceKeys.all, 'detail', id, 'incidents'] as const,
+  incidents: (id: string, limit: number) =>
+    [...serviceKeys.all, 'detail', id, 'incidents', { limit }] as const,
 };
 
 export const serviceListQueryOptions = () =>
@@ -33,16 +37,17 @@ export const serviceDetailQueryOptions = (serviceId: string) =>
     refetchInterval: POLL_INTERVAL_MS,
   });
 
-export const incidentHistoryQueryOptions = (serviceId: string) =>
+const incidentHistoryPath = (serviceId: string, limit: number) =>
+  `/api/services/${encodeURIComponent(serviceId)}/incidents?limit=${limit}`;
+
+export const incidentHistoryQueryOptions = (serviceId: string, limit = HISTORY_PAGE_SIZE) =>
   queryOptions({
-    queryKey: serviceKeys.incidents(serviceId),
+    queryKey: serviceKeys.incidents(serviceId, limit),
     queryFn: ({ signal }) =>
-      getJson(
-        `/api/services/${encodeURIComponent(serviceId)}/incidents`,
-        incidentHistorySchema,
-        signal,
-      ),
-    select: ({ incidents }) => incidents,
+      getJson(incidentHistoryPath(serviceId, limit), incidentHistorySchema, signal),
+    // Providers do not always return incidents in order; newest first.
+    select: ({ incidents }) =>
+      incidents.sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt)),
     // History changes rarely; no need to poll it.
     staleTime: 5 * 60_000,
   });

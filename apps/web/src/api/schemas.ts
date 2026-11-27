@@ -32,14 +32,14 @@ export const incidentSchema = z.object({
   startedAt: z.string(),
   resolvedAt: z.string().nullable(),
   latestUpdate: z
-    .object({ status: z.string(), body: z.string(), createdAt: z.string() })
+    .object({ status: z.string(), body: z.string(), bodyHtml: z.string(), createdAt: z.string() })
     .nullable(),
 });
 
 export const serviceSummarySchema = z.object({
   id: z.string(),
   name: z.string(),
-  statusPageUrl: z.string(),
+  pageUrl: z.string(),
   status: serviceStatusSchema,
   description: z.string(),
   activeIncidentCount: z.number(),
@@ -67,4 +67,8 @@ export const serviceDetailSchema = serviceSummarySchema.extend({
 
 export const incidentHistorySchema = z.object({
   incidents: z.array(incidentSchema),
+});
+
+export const cacheRefreshSchema = z.object({
+  refreshed: z.number(),
 });

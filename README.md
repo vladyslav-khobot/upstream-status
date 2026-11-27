@@ -7,7 +7,8 @@ which providers are degraded, what is broken and what they last said about it.
 - **Dashboard** with every tracked service, sorted so problems are always on top.
 - **Filter and search** stored in the URL, so a filtered view can be shared.
 - **Service page** with components, active incidents, scheduled maintenance and incident history.
-- **Auto-refresh** every minute, with a manual refresh button.
+- **Live refresh** every 10 seconds, plus a Refresh button that also clears the server cache.
+- **Incident history** grouped by day, with "Show more".
 
 All data comes from each provider's public [Statuspage](https://www.atlassian.com/software/statuspage)
 JSON API. No API keys or accounts are needed.
@@ -27,8 +28,8 @@ JSON API. No API keys or accounts are needed.
 ```
 Browser ──/api──▶ Express API ──HTTPS──▶ githubstatus.com, status.npmjs.org, ...
   │                  │
-  │                  └─ caches each status page for 60 s, 5 s timeout per request
-  └─ TanStack Query: caches responses, polls every 60 s, cancels requests on navigation
+  │                  └─ caches each status page for 10 s, 45 s timeout per request
+  └─ TanStack Query: caches responses, polls every 10 s, cancels requests on navigation
 ```
 
 Why there is a backend at all: browsers cannot call most status pages directly (CORS), every
@@ -82,14 +83,16 @@ Nothing needs configuring to run locally. To change defaults, copy the example f
 cp apps/api/.env.example apps/api/.env
 ```
 
-| Variable              | Default                 | Description                                   |
-| --------------------- | ----------------------- | --------------------------------------------- |
-| `PORT`                | `3001`                  | Port the API listens on                       |
-| `CORS_ORIGIN`         | `http://localhost:5173` | Origin allowed to call the API from a browser |
-| `CACHE_TTL_MS`        | `60000`                 | How long a status page response is reused     |
-| `UPSTREAM_TIMEOUT_MS` | `5000`                  | Timeout for one request to a status page      |
+| Variable              | Default                 | Description                                       |
+| --------------------- | ----------------------- | ------------------------------------------------- |
+| `PORT`                | `3001`                  | Port the API listens on                           |
+| `CORS_ORIGIN`         | `http://localhost:5173` | Origin allowed to call the API from a browser     |
+| `CACHE_TTL_MS`        | `10000`                 | How long a status page response is reused         |
+| `UPSTREAM_TIMEOUT_MS` | `45000`                 | Timeout for one request to a status page          |
+| `ADMIN_TOKEN`         | empty                   | Token for `/api/admin/*` (header `x-admin-token`) |
 
-The web app reads `VITE_API_URL` (empty by default, meaning same-origin `/api`) and the dev server
+The web app reads `VITE_API_URL` (empty by default, meaning same-origin `/api`) and
+`VITE_ADMIN_TOKEN` (sent by the Refresh button; must match `ADMIN_TOKEN`), and the dev server
 reads `API_PROXY_TARGET` (default `http://localhost:3001`). See `apps/web/.env.example`.
 
 ## Scripts
@@ -123,10 +126,11 @@ Enforced by ESLint and Prettier (`npm run lint`, `npm run format:check`):
 
 | Endpoint                                 | Returns                                                |
 | ---------------------------------------- | ------------------------------------------------------ |
-| `GET /api/health`                        | `{ "ok": true }`, used by Docker and the load balancer |
+| `GET /api/healthz`                       | `{ "ok": true }`, used by Docker and the load balancer |
 | `GET /api/services`                      | Summary of every tracked service                       |
 | `GET /api/services/:serviceId`           | Components, active incidents, scheduled maintenance    |
-| `GET /api/services/:serviceId/incidents` | Last 25 incidents                                      |
+| `GET /api/services/:serviceId/incidents` | Recent incidents, `?limit=N` (default 25)              |
+| `POST /api/admin/cache/refresh`          | Clears the cache and refetches all pages (admin token) |
 
 If a status page is down, `/api/services` still answers: that service gets `status: "unknown"` and an
 `error` message. Unknown service ids return 404, upstream failures on a single service return 502.

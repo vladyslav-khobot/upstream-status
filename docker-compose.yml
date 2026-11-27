@@ -6,14 +6,17 @@ services:
       dockerfile: apps/api/Dockerfile
     environment:
       PORT: 3001
-      CACHE_TTL_MS: 60000
-      UPSTREAM_TIMEOUT_MS: 5000
+      CACHE_TTL_MS: 10000
+      UPSTREAM_TIMEOUT_MS: 45000
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-upstream-admin}
     restart: unless-stopped
 
   web:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
+      args:
+        VITE_ADMIN_TOKEN: ${ADMIN_TOKEN:-upstream-admin}
     ports:
       - '8080:80'
     depends_on:

@@ -15,6 +15,8 @@ export const catalog: readonly CatalogEntry[] = [
   { id: 'discord', name: 'Discord', baseUrl: 'https://discordstatus.com' },
   { id: 'twilio', name: 'Twilio', baseUrl: 'https://status.twilio.com' },
   { id: 'dropbox', name: 'Dropbox', baseUrl: 'https://status.dropbox.com' },
+  { id: 'supabase', name: 'Supabase', baseUrl: 'https://status.supabase.com' },
+  { id: 'render', name: 'Render', baseUrl: 'https://status.render.com' },
 ];
 
 export const findCatalogEntry = (id: string): CatalogEntry | undefined =>

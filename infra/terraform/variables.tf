@@ -31,7 +31,7 @@ variable "web_origin" {
 variable "api_desired_count" {
   description = "Number of API tasks. Each task has its own in-memory cache and polls every status page independently."
   type        = number
-  default     = 2
+  default     = 8
 }
 
 variable "api_container_port" {
@@ -42,11 +42,17 @@ variable "api_container_port" {
 
 variable "cache_ttl_ms" {
   type    = number
-  default = 60000
+  default = 10000
 }
 
 variable "upstream_timeout_ms" {
   description = "Keep well below the load balancer idle timeout, or the LB cuts requests off first."
   type        = number
-  default     = 5000
+  default     = 45000
+}
+
+variable "admin_token" {
+  description = "Token for /api/admin/* endpoints."
+  type        = string
+  sensitive   = true
 }

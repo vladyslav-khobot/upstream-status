@@ -54,6 +54,7 @@ describe('toIncident', () => {
     assert.equal(incident.startedAt, '2026-01-01T10:00:00Z');
     assert.equal(incident.resolvedAt, null);
     assert.equal(incident.latestUpdate?.body, 'Fixed.\nThanks & sorry');
+    assert.equal(incident.latestUpdate.bodyHtml, 'Fixed.<br />Thanks &amp; sorry');
   });
 });
 
