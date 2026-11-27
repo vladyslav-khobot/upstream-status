@@ -19,7 +19,7 @@ const ServicePage = () => {
       status,
       description,
       updatedAt,
-      statusPageUrl,
+      pageUrl,
       activeIncidents,
       scheduledMaintenances,
       components,
@@ -45,7 +45,7 @@ const ServicePage = () => {
           )}
           {' · '}
           <a
-            href={statusPageUrl}
+            href={pageUrl}
             target="_blank"
             rel="noreferrer"
             className="underline underline-offset-2 hover:text-zinc-900"

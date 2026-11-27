@@ -39,3 +39,16 @@ export const formatDuration = (startIso: string, endIso: string): string => {
   const rest = minutes % 60;
   return rest === 0 ? `${hours} h` : `${hours} h ${rest} min`;
 };
+
+const dayFormatter = new Intl.DateTimeFormat(undefined, {
+  weekday: 'short',
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+
+/** Calendar day of a timestamp, used to group incidents: "2026-11-27". */
+export const toDayKey = (iso: string): string => new Date(iso).toISOString().slice(0, 10);
+
+/** Heading for a day group in the viewer's locale: "Fri, 27 November 2026". */
+export const formatDay = (dayKey: string): string => dayFormatter.format(new Date(dayKey));

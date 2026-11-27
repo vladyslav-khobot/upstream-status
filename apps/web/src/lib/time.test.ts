@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatDuration, formatRelative } from './time';
+import { formatDuration, formatRelative, toDayKey } from './time';
 
 const now = new Date('2026-01-10T12:00:00Z');
 
@@ -20,5 +20,13 @@ describe('formatDuration', () => {
     expect(formatDuration('2026-01-10T10:00:00Z', '2026-01-10T10:45:00Z')).toBe('45 min');
     expect(formatDuration('2026-01-10T10:00:00Z', '2026-01-10T12:00:00Z')).toBe('2 h');
     expect(formatDuration('2026-01-10T10:00:00Z', '2026-01-10T12:30:00Z')).toBe('2 h 30 min');
+  });
+});
+
+describe('toDayKey', () => {
+  it('groups timestamps of the same day together', () => {
+    expect(toDayKey('2026-01-10T08:00:00Z')).toBe('2026-01-10');
+    expect(toDayKey('2026-01-10T18:30:00Z')).toBe('2026-01-10');
+    expect(toDayKey('2026-01-11T00:15:00Z')).toBe('2026-01-11');
   });
 });

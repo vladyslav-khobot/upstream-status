@@ -13,7 +13,7 @@ export interface CatalogEntry {
 }
 
 export interface AppDeps {
-  config: Pick<Config, 'CORS_ORIGIN'>;
+  config: Pick<Config, 'CORS_ORIGIN' | 'ADMIN_TOKEN'>;
   client: StatuspageClient;
 }
 

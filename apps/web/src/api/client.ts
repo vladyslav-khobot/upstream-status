@@ -1,8 +1,10 @@
 import { z } from 'zod';
 
+import { cacheRefreshSchema } from './schemas';
 import type { ApiError } from './types';
 
 const API_URL = import.meta.env.VITE_API_URL ?? '';
+const ADMIN_TOKEN = import.meta.env.VITE_ADMIN_TOKEN ?? '';
 
 const errorBodySchema = z.object({ error: z.object({ message: z.string() }) });
 
@@ -12,21 +14,13 @@ export const createApiError = (status: number, message: string): ApiError =>
 export const isApiError = (error: unknown): error is ApiError =>
   error instanceof Error && error.name === 'ApiError';
 
-/**
- * GETs a JSON endpoint and validates the body.
- * `signal` comes from TanStack Query, so leaving a page cancels its requests.
- */
-export const getJson = async <T>(
-  path: string,
-  schema: z.ZodType<T>,
-  signal?: AbortSignal,
-): Promise<T> => {
-  const response = await fetch(`${API_URL}${path}`, {
-    headers: { accept: 'application/json' },
-    signal: signal ?? null,
-  });
-  const body: unknown = await response.json().catch(() => null);
+/** Sends a request to the API and validates the JSON body against `schema`. */
+const request = async <T>(path: string, schema: z.ZodType<T>, init: RequestInit): Promise<T> => {
+  const headers = new Headers(init.headers);
+  headers.set('accept', 'application/json');
 
+  const response = await fetch(`${API_URL}${path}`, { ...init, headers });
+  const body: unknown = await response.json().catch(() => null);
   const { ok, status } = response;
 
   if (!ok) {
@@ -43,3 +37,17 @@ export const getJson = async <T>(
   }
   return data;
 };
+
+/**
+ * GETs a JSON endpoint.
+ * `signal` comes from TanStack Query, so leaving a page cancels its requests.
+ */
+export const getJson = <T>(path: string, schema: z.ZodType<T>, signal?: AbortSignal): Promise<T> =>
+  request(path, schema, { signal: signal ?? null });
+
+/** Asks the API to drop its status page cache and fetch everything again. */
+export const refreshServerCache = () =>
+  request('/api/admin/cache/refresh', cacheRefreshSchema, {
+    method: 'POST',
+    headers: { 'x-admin-token': ADMIN_TOKEN },
+  });

@@ -15,7 +15,7 @@ export type IncidentImpact = 'none' | 'minor' | 'major' | 'critical' | 'maintena
 export interface ServiceSummary {
   id: string;
   name: string;
-  statusPageUrl: string;
+  pageUrl: string;
   status: ServiceStatus;
   description: string;
   activeIncidentCount: number;
@@ -38,6 +38,8 @@ export interface IncidentUpdate {
   status: string;
   /** Plain text: upstream HTML is stripped by the API. */
   body: string;
+  /** The update as published by the provider, for rich formatting (links, lists). */
+  bodyHtml: string;
   createdAt: string;
 }
 
@@ -64,6 +66,10 @@ export interface ServiceListResponse {
 
 export interface IncidentHistoryResponse {
   incidents: Incident[];
+}
+
+export interface CacheRefreshResponse {
+  refreshed: number;
 }
 
 export interface ErrorResponse {

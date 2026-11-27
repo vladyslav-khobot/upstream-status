@@ -27,7 +27,12 @@ const toIncidentUpdate = ({
   status,
   body,
   created_at: createdAt,
-}: StatuspageIncidentUpdate): IncidentUpdate => ({ status, body: htmlToText(body), createdAt });
+}: StatuspageIncidentUpdate): IncidentUpdate => ({
+  status,
+  body: htmlToText(body),
+  bodyHtml: body,
+  createdAt,
+});
 
 export const toIncident = ({
   id,
@@ -72,7 +77,7 @@ export const toServiceSummary = (
 ): ServiceSummary => ({
   id,
   name,
-  statusPageUrl: baseUrl,
+  pageUrl: baseUrl,
   status: statusByIndicator[status.indicator],
   description: status.description,
   activeIncidentCount: incidents.length,
@@ -89,7 +94,7 @@ export const toUnavailableSummary = (
 ): ServiceSummary => ({
   id,
   name,
-  statusPageUrl: baseUrl,
+  pageUrl: baseUrl,
   status: 'unknown',
   description: 'Status page is unavailable',
   activeIncidentCount: 0,

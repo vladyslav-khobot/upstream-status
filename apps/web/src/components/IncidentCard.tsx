@@ -11,10 +11,13 @@ const impactClass: Record<Incident['impact'], string> = {
   critical: 'border-l-red-600',
 };
 
-const IncidentUpdateNote = ({ update: { body, createdAt } }: IncidentUpdateNoteProps) => (
+const IncidentUpdateNote = ({ update: { bodyHtml, createdAt } }: IncidentUpdateNoteProps) => (
   <div className="mt-3 text-sm text-zinc-700">
-    {/* The API sends plain text; whitespace-pre-line keeps its line breaks. */}
-    <p className="line-clamp-6 whitespace-pre-line">{body}</p>
+    {/* Rendered as HTML to keep the provider's links and line breaks. */}
+    <div
+      className="line-clamp-6 [&_a]:underline [&_a]:underline-offset-2"
+      dangerouslySetInnerHTML={{ __html: bodyHtml }}
+    />
     <p className="mt-1 text-xs text-zinc-500">
       Latest update <RelativeTime iso={createdAt} />
     </p>

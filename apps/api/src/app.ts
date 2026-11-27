@@ -4,6 +4,7 @@ import type { ErrorRequestHandler } from 'express';
 
 import type { ErrorResponse } from './contract.ts';
 import { createHttpError, isHttpError } from './lib/http-error.ts';
+import { adminRouter } from './routes/admin.ts';
 import { servicesRouter } from './routes/services.ts';
 import { isUpstreamError } from './statuspage/upstream-error.ts';
 import type { AppDeps, ErrorDescription } from './types.ts';
@@ -28,17 +29,19 @@ const errorHandler: ErrorRequestHandler = (error: unknown, _req, res, _next) => 
   res.status(status).json({ error: { message } } satisfies ErrorResponse);
 };
 
-export const createApp = ({ config: { CORS_ORIGIN }, client }: AppDeps) => {
+export const createApp = ({ config: { CORS_ORIGIN, ADMIN_TOKEN }, client }: AppDeps) => {
   const app = express();
 
   app.disable('x-powered-by');
   app.use(cors({ origin: CORS_ORIGIN }));
+  app.use(express.json());
 
-  app.get('/api/health', (_req, res) => {
+  app.get('/api/healthz', (_req, res) => {
     res.json({ ok: true });
   });
 
   app.use('/api/services', servicesRouter(client));
+  app.use('/api/admin', adminRouter(client, ADMIN_TOKEN));
 
   app.use((_req, _res, next) => {
     next(createHttpError(404, 'Not found'));

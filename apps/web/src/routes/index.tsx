@@ -3,6 +3,7 @@ import { createFileRoute, stripSearchParams } from '@tanstack/react-router';
 import { useMemo } from 'react';
 import { z } from 'zod';
 
+import { refreshServerCache } from '../api/client';
 import { serviceKeys, serviceListQueryOptions } from '../api/queries';
 import type { ServiceSummary } from '../api/types';
 import { FilterTabs } from '../components/FilterTabs';
@@ -61,8 +62,7 @@ const Dashboard = () => {
               'Refreshing…'
             ) : (
               <>
-                Updated <RelativeTime iso={new Date(dataUpdatedAt).toISOString()} />, refreshes
-                every minute
+                Updated <RelativeTime iso={new Date(dataUpdatedAt).toISOString()} />, live
               </>
             )}
           </p>
@@ -70,7 +70,12 @@ const Dashboard = () => {
 
         <button
           type="button"
-          onClick={() => void queryClient.invalidateQueries({ queryKey: serviceKeys.all })}
+          onClick={() => {
+            // Fresh data from the providers, not just from the API cache.
+            void refreshServerCache().then(() =>
+              queryClient.invalidateQueries({ queryKey: serviceKeys.all }),
+            );
+          }}
           disabled={isFetching}
           className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium shadow-xs hover:bg-zinc-50 disabled:opacity-50"
         >

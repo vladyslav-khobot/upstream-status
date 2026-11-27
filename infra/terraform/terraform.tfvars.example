@@ -3,3 +3,4 @@ public_subnet_ids  = ["subnet-aaaa", "subnet-bbbb"]
 private_subnet_ids = ["subnet-cccc", "subnet-dddd"]
 api_image          = "123456789012.dkr.ecr.eu-central-1.amazonaws.com/upstream-api:latest"
 web_origin         = "https://upstream.example.com"
+admin_token        = "change-me"

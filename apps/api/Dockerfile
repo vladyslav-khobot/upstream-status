@@ -17,7 +17,7 @@ WORKDIR /app/apps/api
 USER node
 EXPOSE 3001
 
-HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://localhost:3001/api/health || exit 1
+HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://localhost:3001/api/healthz || exit 1
 
 # Node runs TypeScript directly (type stripping), so there is no build step.
 CMD ["node", "src/server.ts"]

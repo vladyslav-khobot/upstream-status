@@ -47,6 +47,7 @@ resource "aws_ecs_task_definition" "api" {
         { name = "CORS_ORIGIN", value = var.web_origin },
         { name = "CACHE_TTL_MS", value = tostring(var.cache_ttl_ms) },
         { name = "UPSTREAM_TIMEOUT_MS", value = tostring(var.upstream_timeout_ms) },
+        { name = "ADMIN_TOKEN", value = var.admin_token },
       ]
       logConfiguration = {
         logDriver = "awslogs"
